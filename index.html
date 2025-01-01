@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shake & Watch</title>
+    <title>WhatToWatch</title>
     <style>
         :root {
             --primary-bg: #121212;
@@ -117,7 +117,7 @@
             padding: 2rem;
             max-width: 800px;
             width: 90%;
-            text-align: center;
+            text-align: left;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 
                         0 2px 4px -1px rgba(0, 0, 0, 0.3);
             opacity: 0;
@@ -135,13 +135,15 @@
             font-weight: 600;
             margin-bottom: 1.5rem;
             line-height: 1.1;
+            text-align: center;
         }
 
         .movie-details img {
+            display: block;
+            margin: 0 auto 1.5rem;
             width: 100%;
             max-width: 400px;
             border-radius: 16px;
-            margin: 1.5rem 0;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
                         0 10px 10px -5px rgba(0, 0, 0, 0.3);
         }
@@ -188,9 +190,9 @@
     </style>
 </head>
 <body>
-    <h1>Shake & Watch</h1>
+    <h1>WhatToWatch</h1>
 
-    <p class="description">Select your preferred language and movie type (Old, Recent, or Upcoming), then press the button or shake your phone to get a movie recommendation. For upcoming movies, you can directly book tickets! Personalize recommendations and share your favorite movies with friends.</p>
+    <p class="description">Select your preferred language and movie type (Old, Recent, or Upcoming), then press the button or shake your phone to get a movie recommendation. For upcoming movies, you can directly book tickets! Share your favorite movies with friends.</p>
 
     <div class="filters">
         <select id="languageFilter">
@@ -244,23 +246,6 @@
                 endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.gte=${currentYear - 2}-01-01&primary_release_date.lte=${currentDate.toISOString().split('T')[0]}&sort_by=popularity.desc`;
             } else if (category === 'upcoming') {
                 endpoint = `https://api.themoviedb.org/3/movie/upcoming?api_key=${TMDB_API_KEY}&region=IN`;
-
-                const response = await fetch(endpoint);
-                const data = await response.json();
-
-                let movies = data.results.filter((movie) => movie.original_language === language);
-
-                if (movies.length === 0) {
-                    console.warn('No upcoming movies found in the selected language. Displaying all upcoming movies.');
-                    movies = data.results;
-                }
-
-                if (!movies || movies.length === 0) {
-                    throw new Error('No upcoming movies found.');
-                }
-
-                const movie = movies[Math.floor(Math.random() * movies.length)];
-                return displayMovie(movie, category);
             }
 
             try {
@@ -320,6 +305,32 @@
             if (activeTab.id === 'recentTab') fetchMovies('recent');
             if (activeTab.id === 'upcomingTab') fetchMovies('upcoming');
         });
+
+        // Add Shake to Suggest functionality
+        if ('DeviceMotionEvent' in window) {
+            let lastShakeTime = 0;
+
+            window.addEventListener('devicemotion', (event) => {
+                const acceleration = event.accelerationIncludingGravity;
+                const shakeThreshold = 15;
+
+                if (
+                    Math.abs(acceleration.x) > shakeThreshold ||
+                    Math.abs(acceleration.y) > shakeThreshold ||
+                    Math.abs(acceleration.z) > shakeThreshold
+                ) {
+                    const now = Date.now();
+                    if (now - lastShakeTime > 1000) {
+                        lastShakeTime = now;
+                        const activeTab = document.querySelector('.tabs button.active');
+                        if (activeTab.id === 'oldTab') fetchMovies('old');
+                        if (activeTab.id === 'recentTab') fetchMovies('recent');
+                        if (activeTab.id === 'upcomingTab') fetchMovies('upcoming');
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
+
