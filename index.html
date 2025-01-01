@@ -123,6 +123,7 @@
             opacity: 0;
             transform: translateY(20px);
             transition: var(--transition);
+            position: relative;
         }
 
         .movie-details.visible {
@@ -171,6 +172,25 @@
         .movie-details a:hover {
             color: var(--accent-color);
             transform: translateX(3px);
+        }
+
+        .share-button {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: var(--highlight-color);
+            color: #000;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .share-button:hover {
+            background: var(--accent-color);
+            color: var(--text-primary);
         }
 
         @media (max-width: 768px) {
@@ -270,6 +290,10 @@
                 actionLink = `<a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title)} trailer" target="_blank">Watch Trailer →</a>`;
             }
 
+            const shareButton = `<button class="share-button" onclick="shareMovie('${movie.title}', '${movie.overview || "No description available."}', '${category}')">
+                Share
+            </button>`;
+
             movieDetails.innerHTML = `
                 <h2>${movie.title}</h2>
                 <img 
@@ -280,8 +304,23 @@
                 <p>${movie.overview || 'No description available.'}</p>
                 <p><strong>Release Date:</strong> ${movie.release_date || 'TBA'}</p>
                 ${actionLink}
+                ${shareButton}
             `;
             movieDetails.classList.add('visible');
+        };
+
+        const shareMovie = (title, overview, category) => {
+            const shareData = {
+                title: `Check out this ${category} movie: ${title}`,
+                text: `${title}: ${overview}`,
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).catch(err => console.error('Error sharing:', err));
+            } else {
+                alert('Sharing not supported on this device.');
+            }
         };
 
         oldTab.addEventListener('click', () => { 
