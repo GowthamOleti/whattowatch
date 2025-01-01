@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shake & Watch</title>
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-color: #bb86fc;
+            --highlight-color: #03dac5;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 600;
+            letter-spacing: -0.009em;
+            margin-bottom: 1.5rem;
+        }
+
+        .description {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 16px;
+            max-width: 600px;
+        }
+
+        .filters {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .filters select {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filters button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: var(--accent-color);
+            color: var(--text-primary);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filters button:hover {
+            background: var(--highlight-color);
+            color: #000;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .tabs button {
+            flex: 1;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tabs button.active {
+            background: var(--accent-color);
+        }
+
+        .movie-details {
+            background: var(--secondary-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 
+                        0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .movie-details.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .movie-details h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .movie-details img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            margin: 1.5rem 0;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
+                        0 10px 10px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .movie-details p {
+            font-size: 17px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .movie-details a {
+            display: inline-block;
+            text-decoration: none;
+            color: var(--highlight-color);
+            font-size: 17px;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .movie-details a:hover {
+            color: var(--accent-color);
+            transform: translateX(3px);
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .movie-details h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Shake & Watch</h1>
+
+    <p class="description">Select your preferred language and movie type (Old, Recent, or Upcoming), then press the button or shake your phone to get a movie recommendation. For upcoming movies, you can directly book tickets! Personalize recommendations and share your favorite movies with friends.</p>
+
+    <div class="filters">
+        <select id="languageFilter">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="te">Telugu</option>
+            <option value="ta">Tamil</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="mr">Marathi</option>
+            <option value="bn">Bengali</option>
+            <option value="gu">Gujarati</option>
+            <option value="pa">Punjabi</option>
+        </select>
+        <button id="suggestButton">Suggest a Movie</button>
+    </div>
+
+    <div class="tabs">
+        <button id="oldTab" class="active">Old</button>
+        <button id="recentTab">Recent</button>
+        <button id="upcomingTab">Upcoming</button>
+    </div>
+
+    <div id="movieDetails" class="movie-details"></div>
+
+    <script>
+        const TMDB_API_KEY = "aad5875c5978daef28ce49c00d9a0865";
+
+        const oldTab = document.getElementById('oldTab');
+        const recentTab = document.getElementById('recentTab');
+        const upcomingTab = document.getElementById('upcomingTab');
+        const suggestButton = document.getElementById('suggestButton');
+        const movieDetails = document.getElementById('movieDetails');
+        const languageFilter = document.getElementById('languageFilter');
+
+        const activateTab = (tab) => {
+            [oldTab, recentTab, upcomingTab].forEach(button => button.classList.remove('active'));
+            tab.classList.add('active');
+        };
+
+        const fetchMovies = async (category) => {
+            movieDetails.classList.remove('visible');
+            const language = languageFilter.value;
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            let endpoint;
+
+            if (category === 'old') {
+                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.lte=${currentYear - 2}-12-31&sort_by=popularity.desc`;
+            } else if (category === 'recent') {
+                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.gte=${currentYear - 2}-01-01&primary_release_date.lte=${currentDate.toISOString().split('T')[0]}&sort_by=popularity.desc`;
+            } else if (category === 'upcoming') {
+                endpoint = `https://api.themoviedb.org/3/movie/upcoming?api_key=${TMDB_API_KEY}&region=IN`;
+
+                const response = await fetch(endpoint);
+                const data = await response.json();
+
+                let movies = data.results.filter((movie) => movie.original_language === language);
+
+                if (movies.length === 0) {
+                    console.warn('No upcoming movies found in the selected language. Displaying all upcoming movies.');
+                    movies = data.results;
+                }
+
+                if (!movies || movies.length === 0) {
+                    throw new Error('No upcoming movies found.');
+                }
+
+                const movie = movies[Math.floor(Math.random() * movies.length)];
+                return displayMovie(movie, category);
+            }
+
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                if (!data.results || data.results.length === 0) {
+                    throw new Error('No movies found for the selected category and language.');
+                }
+                const movie = data.results[Math.floor(Math.random() * data.results.length)];
+                displayMovie(movie, category);
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+                movieDetails.innerHTML = `<p style="color: #ff3b30;">Unable to fetch movies. Please try again later.</p>`;
+            }
+        };
+
+        const displayMovie = (movie, category) => {
+            let actionLink;
+            if (category === 'old' || category === 'recent') {
+                actionLink = `<a href="https://www.themoviedb.org/movie/${movie.id}" target="_blank">Watch Now →</a>`;
+            } else if (category === 'upcoming') {
+                actionLink = `<a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title)} trailer" target="_blank">Watch Trailer →</a>`;
+            }
+
+            movieDetails.innerHTML = `
+                <h2>${movie.title}</h2>
+                <img 
+                    src="https://image.tmdb.org/t/p/w500${movie.poster_path}" 
+                    alt="${movie.title}"
+                    onerror="this.onerror=null; this.src='https://via.placeholder.com/500x750.png?text=No+Poster+Available'"
+                />
+                <p>${movie.overview || 'No description available.'}</p>
+                <p><strong>Release Date:</strong> ${movie.release_date || 'TBA'}</p>
+                ${actionLink}
+            `;
+            movieDetails.classList.add('visible');
+        };
+
+        oldTab.addEventListener('click', () => { 
+            activateTab(oldTab); 
+            fetchMovies('old'); 
+        });
+
+        recentTab.addEventListener('click', () => { 
+            activateTab(recentTab); 
+            fetchMovies('recent'); 
+        });
+
+        upcomingTab.addEventListener('click', () => { 
+            activateTab(upcomingTab); 
+            fetchMovies('upcoming'); 
+        });
+
+        suggestButton.addEventListener('click', () => {
+            const activeTab = document.querySelector('.tabs button.active');
+            if (activeTab.id === 'oldTab') fetchMovies('old');
+            if (activeTab.id === 'recentTab') fetchMovies('recent');
+            if (activeTab.id === 'upcomingTab') fetchMovies('upcoming');
+        });
+    </script>
+</body>
+</html>
