@@ -32,7 +32,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             padding: 2rem;
         }
@@ -124,11 +124,13 @@
             transform: translateY(20px);
             transition: var(--transition);
             position: relative;
+            display: none; /* Initially hidden */
         }
 
         .movie-details.visible {
             opacity: 1;
             transform: translateY(0);
+            display: block; /* Ensure visibility on activation */
         }
 
         .movie-details h2 {
@@ -247,6 +249,7 @@
         const suggestButton = document.getElementById('suggestButton');
         const movieDetails = document.getElementById('movieDetails');
         const languageFilter = document.getElementById('languageFilter');
+        const viewedMovies = new Set();
 
         const activateTab = (tab) => {
             [oldTab, recentTab, upcomingTab].forEach(button => button.classList.remove('active'));
@@ -261,24 +264,39 @@
             let endpoint;
 
             if (category === 'old') {
-                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.lte=${currentYear - 2}-12-31&sort_by=popularity.desc`;
+                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.lte=${currentYear - 2}-12-31`;
             } else if (category === 'recent') {
-                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.gte=${currentYear - 2}-01-01&primary_release_date.lte=${currentDate.toISOString().split('T')[0]}&sort_by=popularity.desc`;
+                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.gte=${currentYear - 2}-01-01&primary_release_date.lte=${currentDate.toISOString().split('T')[0]}`;
             } else if (category === 'upcoming') {
                 endpoint = `https://api.themoviedb.org/3/movie/upcoming?api_key=${TMDB_API_KEY}&region=IN`;
             }
 
             try {
-                const response = await fetch(endpoint);
-                const data = await response.json();
-                if (!data.results || data.results.length === 0) {
+                const movies = [];
+                for (let page = 1; page <= 5; page++) { // Fetch up to 5 pages of results
+                    const response = await fetch(`${endpoint}&page=${page}`);
+                    const data = await response.json();
+                    if (!data.results || data.results.length === 0) {
+                        break;
+                    }
+                    movies.push(...data.results);
+                }
+
+                if (movies.length === 0) {
                     throw new Error('No movies found for the selected category and language.');
                 }
-                const movie = data.results[Math.floor(Math.random() * data.results.length)];
+
+                let movie;
+                do {
+                    movie = movies[Math.floor(Math.random() * movies.length)];
+                } while (viewedMovies.has(movie.id) && movies.length > viewedMovies.size);
+
+                viewedMovies.add(movie.id);
                 displayMovie(movie, category);
             } catch (error) {
                 console.error('Error fetching movies:', error);
                 movieDetails.innerHTML = `<p style="color: #ff3b30;">Unable to fetch movies. Please try again later.</p>`;
+                movieDetails.classList.add('visible');
             }
         };
 
@@ -372,4 +390,5 @@
     </script>
 </body>
 </html>
+
 
