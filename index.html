@@ -196,6 +196,10 @@
         }
 
         @media (max-width: 768px) {
+            .movie-details {
+                width: 95%; /* Slightly wider for mobile */
+            }
+
             .tabs {
                 flex-wrap: wrap;
                 gap: 8px;
@@ -293,6 +297,11 @@
 
                 viewedMovies.add(movie.id);
                 displayMovie(movie, category);
+
+                // Vibrate on suggestion
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
             } catch (error) {
                 console.error('Error fetching movies:', error);
                 movieDetails.innerHTML = `<p style="color: #ff3b30;">Unable to fetch movies. Please try again later.</p>`;
@@ -308,7 +317,11 @@
                 actionLink = `<a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title)} trailer" target="_blank">Watch Trailer →</a>`;
             }
 
-            const shareButton = `<button class="share-button" onclick="shareMovie('${movie.title}', '${movie.overview || "No description available."}', '${category}')">
+            const shareMessage = category === 'upcoming'
+                ? `Hey, I'm waiting for ${movie.title}, suggested by WhatToWatch!`
+                : `Hey, I'm watching ${movie.title}, suggested by WhatToWatch!`;
+
+            const shareButton = `<button class="share-button" onclick="shareMovie('${shareMessage}')">
                 Share
             </button>`;
 
@@ -327,15 +340,19 @@
             movieDetails.classList.add('visible');
         };
 
-        const shareMovie = (title, overview, category) => {
+        const shareMovie = (message) => {
             const shareData = {
-                title: `Check out this ${category} movie: ${title}`,
-                text: `${title}: ${overview}`,
+                text: message,
                 url: window.location.href
             };
 
             if (navigator.share) {
                 navigator.share(shareData).catch(err => console.error('Error sharing:', err));
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(`${message}
+${window.location.href}`)
+                    .then(() => alert('Link copied to clipboard!'))
+                    .catch(err => console.error('Error copying to clipboard:', err));
             } else {
                 alert('Sharing not supported on this device.');
             }
@@ -362,31 +379,6 @@
             if (activeTab.id === 'recentTab') fetchMovies('recent');
             if (activeTab.id === 'upcomingTab') fetchMovies('upcoming');
         });
-
-        // Add Shake to Suggest functionality
-        if ('DeviceMotionEvent' in window) {
-            let lastShakeTime = 0;
-
-            window.addEventListener('devicemotion', (event) => {
-                const acceleration = event.accelerationIncludingGravity;
-                const shakeThreshold = 15;
-
-                if (
-                    Math.abs(acceleration.x) > shakeThreshold ||
-                    Math.abs(acceleration.y) > shakeThreshold ||
-                    Math.abs(acceleration.z) > shakeThreshold
-                ) {
-                    const now = Date.now();
-                    if (now - lastShakeTime > 1000) {
-                        lastShakeTime = now;
-                        const activeTab = document.querySelector('.tabs button.active');
-                        if (activeTab.id === 'oldTab') fetchMovies('old');
-                        if (activeTab.id === 'recentTab') fetchMovies('recent');
-                        if (activeTab.id === 'upcomingTab') fetchMovies('upcoming');
-                    }
-                }
-            });
-        }
     </script>
 </body>
 </html>
