@@ -402,37 +402,30 @@
             }
         };
 
-        const displayMovie = (movie) => {
-            const actionLink = `<a href="https://www.themoviedb.org/movie/${movie.id}" target="_blank">Watch Now →</a>`;
-           const shareMessage = `Hey, I'm watching "${movie.title}" on #WhatToWatch!`;
+const displayMovie = (movie) => {
+    const shareMessage = `Hey, I'm watching "${movie.title}" on WhatToWatch! Check it out: https://www.themoviedb.org/movie/${movie.id}`;
+    movieDetails.innerHTML = `
+        <h2>${movie.title}</h2>
+        <img 
+            src="https://image.tmdb.org/t/p/w500${movie.poster_path}" 
+            alt="${movie.title}"
+            onerror="this.onerror=null; this.src='https://via.placeholder.com/500x750.png?text=No+Poster+Available'"
+        />
+        <p>${movie.overview || 'No description available.'}</p>
+        <p><strong>Release Date:</strong> ${movie.release_date || 'TBA'}</p>
+        <a href="https://www.themoviedb.org/movie/${movie.id}" target="_blank">Watch Now →</a>
+        <button class="share-button" id="shareButton">Copy Link</button>
+    `;
+    movieDetails.classList.add('visible');
 
-
-            const shareButton = `<button class="share-button" onclick="copyToClipboard('${shareMessage.replace(/'/g, "\\'")}')">
-    Copy Link
-</button>`;
-
-
-            movieDetails.innerHTML = `
-                <h2>${movie.title}</h2>
-                <img 
-                    src="
-https://image.tmdb.org/t/p/w500${movie.poster_path}" 
-                    alt="${movie.title}"
-                    onerror="this.onerror=null; this.src='https://via.placeholder.com/500x750.png?text=No+Poster+Available'"
-                />
-                <p>${movie.overview || 'No description available.'}</p>
-                <p><strong>Release Date:</strong> ${movie.release_date || 'TBA'}</p>
-                ${actionLink}
-                ${shareButton}
-            `;
-            movieDetails.classList.add('visible');
-        };
-
-        const updateHistory = () => {
-            recentSuggestions.innerHTML = history.map(title => `<li>${title}</li>`).join('');
-        };
+    // Attach event listener to the share button
+    document.getElementById('shareButton').addEventListener('click', () => {
+        copyToClipboard(shareMessage);
+    });
+};
 
 const copyToClipboard = (message) => {
+    console.log("Copying message:", message); // Debug log
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(message)
             .then(() => {
@@ -451,6 +444,7 @@ const copyToClipboard = (message) => {
 
 // Fallback method for older browsers
 const fallbackCopyToClipboard = (message) => {
+    console.log("Using fallback to copy:", message); // Debug log
     const textArea = document.createElement('textarea');
     textArea.value = message;
     textArea.style.position = 'fixed'; // Prevent scrolling
@@ -464,19 +458,14 @@ const fallbackCopyToClipboard = (message) => {
 
     try {
         const successful = document.execCommand('copy');
-        if (successful) {
-            console.log("Successfully copied using fallback.");
-            showToast('Link copied to clipboard!');
-        } else {
-            console.error("Fallback copy failed.");
-        }
+        console.log("Fallback copy:", successful);
+        showToast('Link copied to clipboard!');
     } catch (err) {
         console.error("Fallback: Unable to copy text:", err);
     }
 
     document.body.removeChild(textArea);
 };
-
 
         const showToast = (message) => {
             toast.textContent = message;
