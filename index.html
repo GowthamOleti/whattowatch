@@ -377,7 +377,6 @@
                 loadingSpinner.style.display = "none";
             }
         };
-
         const displayMovie = (movie) => {
             const actionLink = `<a href="https://www.themoviedb.org/movie/${movie.id}" target="_blank">Watch Now →</a>`;
             const shareMessage = `Hey, I'm watching ${movie.title}, suggested by #WhatToWatch!`;
@@ -406,21 +405,23 @@
         };
 
         const shareMovie = (message) => {
-            const shareData = {
-                text: message,
-                url: window.location.href
-            };
+    const shareData = {
+        text: message,
+        url: window.location.href
+    };
 
-            if (navigator.share) {
-                navigator.share(shareData).catch(err => console.error('Error sharing:', err));
-            } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(`${message}\n${window.location.href}`)
-                    .then(() => alert('Link copied to clipboard!'))
-                    .catch(err => console.error('Error copying to clipboard:', err));
-            } else {
-                alert('Sharing not supported on this device.');
-            }
-        };
+    if (navigator.share) {
+        navigator.share(shareData)
+            .then(() => console.log('Movie shared successfully!'))
+            .catch(err => console.error('Error sharing movie:', err));
+    } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(`${message}\n${window.location.href}`)
+            .then(() => alert('Sharing not supported, but the link was copied to your clipboard!'))
+            .catch(err => console.error('Error copying to clipboard:', err));
+    } else {
+        alert('Sharing is not supported on your device.');
+    }
+};
 
         oldTab.addEventListener('click', () => { 
             activateTab(oldTab); 
