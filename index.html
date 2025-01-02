@@ -341,7 +341,8 @@
             if (category === 'old') {
                 endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.lte=${currentYear - 2}-12-31`;
             } else if (category === 'recent') {
-                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.gte=${currentYear - 2}-01-01&primary_release_date.lte=${currentDate.toISOString().split('T')[0]}`;
+                endpoint = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&primary_release_date.g
+                with_original_language=${language}&primary_release_date.gte=${currentYear - 2}-01-01&primary_release_date.lte=${currentDate.toISOString().split('T')[0]}`;
             }
 
             try {
@@ -379,7 +380,7 @@
 
         const displayMovie = (movie) => {
             const actionLink = `<a href="https://www.themoviedb.org/movie/${movie.id}" target="_blank">Watch Now →</a>`;
-            const shareMessage = `Hey, I'm watching ${movie.title}, suggested by WhatToWatch!`;
+            const shareMessage = `Hey, I'm watching ${movie.title}, suggested by #WhatToWatch!`;
 
             const shareButton = `<button class="share-button" onclick="shareMovie('${shareMessage}')">
                 Share
@@ -455,6 +456,10 @@
                         const activeTab = document.querySelector('.tabs button.active');
                         if (activeTab.id === 'oldTab') fetchMovies('old');
                         if (activeTab.id === 'recentTab') fetchMovies('recent');
+
+                        if (navigator.vibrate) {
+                            navigator.vibrate(200); // Vibrate for 200ms
+                        }
                     }
                 }
             });
@@ -462,6 +467,7 @@
     </script>
 </body>
 </html>
+
 
 
 
