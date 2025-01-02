@@ -404,11 +404,13 @@
 
         const displayMovie = (movie) => {
             const actionLink = `<a href="https://www.themoviedb.org/movie/${movie.id}" target="_blank">Watch Now →</a>`;
-            const shareMessage = `Hey, I'm watching ${movie.title}, suggested by #WhatToWatch!`;
+           const shareMessage = `Hey, I'm watching "${movie.title}" on #WhatToWatch!`;
 
-            const shareButton = `<button class="share-button" onclick="copyToClipboard('${shareMessage}')">
-                Copy Link
-            </button>`;
+
+            const shareButton = `<button class="share-button" onclick="copyToClipboard('${shareMessage.replace(/'/g, "\\'")}')">
+    Copy Link
+</button>`;
+
 
             movieDetails.innerHTML = `
                 <h2>${movie.title}</h2>
