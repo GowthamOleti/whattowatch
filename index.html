@@ -436,7 +436,7 @@ https://image.tmdb.org/t/p/w500${movie.poster_path}"
                     .then(() => showToast('Link copied to clipboard!'))
                     .catch(err => console.error('Error copying to clipboard:', err));
             } else {
-                alert('Clipboard API not supported.');
+                alert('Clipboard API not supported on this device.');
             }
         };
 
@@ -490,7 +490,6 @@ https://image.tmdb.org/t/p/w500${movie.poster_path}"
     </script>
 </body>
 </html>
-
 
 
 
